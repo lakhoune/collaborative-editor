@@ -36,7 +36,13 @@ function App() {
     // you can also store it in `useRef` for further usage
     monacoRef.current = editor;
     console.log(editor);
-    monaco.editor.setTheme("vs-dark");
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      monaco.editor.setTheme("vs-dark"); // dark mode
+    }
+    
 
     const monacoBinding = new MonacoBinding(
       type,
