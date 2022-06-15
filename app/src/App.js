@@ -2,6 +2,20 @@ import logo from "./logo.svg";
 import React, { useRef } from "react";
 import "./App.css";
 import Editor from "@monaco-editor/react";
+import * as Y from "yjs";
+import { MonacoBinding } from "y-monaco";
+import { WebsocketProvider } from "y-websocket";
+
+const ydoc = new Y.Doc();
+const type = ydoc.getText("monaco");
+
+// Sync clients with the y-websocket provider
+const websocketProvider = new WebsocketProvider(
+  "ws://localhost:1234",
+  "count-demo",
+  ydoc
+);
+
 function App() {
   const monacoRef = useRef(null);
   function handleEditorDidMount(editor, monaco) {
@@ -9,7 +23,20 @@ function App() {
     // you can also store it in `useRef` for further usage
     monacoRef.current = editor;
     console.log(editor);
-    console.log(monaco.editor.setTheme("vs-dark"));
+    monaco.editor.setTheme("vs-dark");
+
+    const monacoBinding = new MonacoBinding(
+      type,
+      editor.getModel(),
+      new Set([editor]),
+      websocketProvider.awareness
+    );
+    console.log(ydoc);
+    console.log(monacoBinding);
+    websocketProvider.awareness.on("update", (d) => {
+      console.log(websocketProvider);
+      console.log("update", d);
+    });
   }
 
   return (
